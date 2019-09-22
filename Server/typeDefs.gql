@@ -1,0 +1,45 @@
+# /Object Query/
+type User{
+        userName: String!,
+        password: String!,
+        confirmPassword: String!,
+        gender: String,
+        email:String!,
+        dob:String,
+}
+
+type Token{
+    token: String!
+}
+
+#/Mutations/
+type Mutation{
+    addUser(
+        userName: String!,
+        password: String!,
+        gender: String!,
+        email: String!,
+        dob: String!): User!
+
+    signupUser(
+        userName: String!,
+        password: String!,
+        gender: String!,
+        email: String!,
+        dob: String!): User!
+
+    signinUser(
+        email: String!,
+        password: String!,
+    ): Token
+
+    checkValidUserName(
+        userName: String!
+    ): User
+}
+
+#/Query/
+type Query{
+    getCurrentUser: User
+    getUser: User!
+}

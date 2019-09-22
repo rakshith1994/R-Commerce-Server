@@ -1,0 +1,16 @@
+mutation{
+  signinUser(email:"rak@gmail.com",password:"123"){
+    token
+  }
+}
+
+# Write your query or mutation here
+mutation{
+  addUser(userName:"rak6",password:"123",email:"rak@gmail.com",gender:"male",dob:"sdsd"){
+    userName,
+    password,
+    email,
+  	gender,
+    dob
+  }
+}
