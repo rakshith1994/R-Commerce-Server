@@ -29,6 +29,9 @@ const getCurrentVerifiedUser = async token =>{
 const server = new ApolloServer({
     typeDefs,
     resolvers,
+    formatError : (error) => {
+        return {name : error.name,message : error.message}
+    },
     context : async (request) => {
         var token = request.req.headers.authorization;
         return {currentUser : await getCurrentVerifiedUser(token)}

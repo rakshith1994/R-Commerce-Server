@@ -19,14 +19,14 @@ type Mutation{
         password: String!,
         gender: String!,
         email: String!,
-        dob: String!): User!
+        dob: String!): Token
 
     signupUser(
         userName: String!,
         password: String!,
         gender: String!,
         email: String!,
-        dob: String!): User!
+        dob: String!): Token
 
     signinUser(
         email: String!,

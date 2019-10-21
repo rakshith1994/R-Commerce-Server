@@ -1,7 +1,9 @@
 import mongodb from 'mongodb';
 import bcrypt from 'bcrypt';
 const jwt  = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 import fs from 'fs';
+import RegisterMail from './email' 
 require('dotenv').config({
     path: 'Env_Variables.env'
 });
@@ -68,15 +70,14 @@ const resolvers = {
          * @param {*} Register new User and insert the data to mongo db.
          * @param {*} {userName,password,gender,email,dob} user userName, password, gender, email, dob.
          */
-        addUser: async (root, {userName,password,gender,email,dob}) => {
+        addUser: async (root, args) => {
             console.log('uri', url);
-            var hashedPassword;
             let client = await MongoClient.connect(url, {
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             }); 
             let db = client.db(process.env.DB_NAME);
-            const isUserExist = await db.collection('User').findOne({userName});
+            const isUserExist = await db.collection('User').findOne({userName : args.userName});
             if(isUserExist){
                 throw new Error('User already Exist');
             }
@@ -84,15 +85,19 @@ const resolvers = {
              * Hashing the password.
              * generate the salt and then hash the password.
              */
-            bcrypt.genSalt(10,(err,salt)=>{
+            await bcrypt.genSalt(10,async (err,salt)=>{
                 if(err) return err;
-                bcrypt.hash(password,salt,async (err,hash)=>{
-                    if(err) return err
-                    password = hash;
-                    let res = await db.collection('User').insertOne({userName,password,gender,email,dob});
-                    return {res};
+                return bcrypt.hash(args.password,salt,async (err,hash)=>{
+                    if(err) throw new Error(err)
+                    args.password = hash;
+                    let res = await db.collection('User').insertOne(args);
+                    RegisterMail(args.userName,args.email)
+                    return res.ops[0]
                 })
             })
+            var token = jwtToken(args,privateKey,"1hr");
+            console.log('token in while adding user>>>>>>>>>',token);
+            return  {token : token};
         },
         /**
          * @param {*} login user 
@@ -123,7 +128,8 @@ const resolvers = {
             if(!isValidPassowrd){
                 throw new Error('InValid password');
             }
-            var token = jwtToken(userDataForTokenGeneration,privateKey,"120s");
+            var token = jwtToken(userDataForTokenGeneration,privateKey,"1hr");
+            // createAccountMail(userDataForTokenGeneration.userName,userDataForTokenGeneration.email);
             return {token};
         },
         /**
@@ -144,6 +150,35 @@ const resolvers = {
         }
     }
 
+}
+
+// async..await is not allowed in global scope, must use a wrapper
+const createAccountMail = (name,emaiTo) => {
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        service : 'gmail',
+        auth: {
+            user: process.env.EMAIL, // generated ethereal user
+            pass: process.env.EMAIL_PASSWORD // generated ethereal password
+        }
+    });
+
+    // send mail with defined transport object
+    let mailInfo = {
+        from: process.env.EMAIL, // sender address
+        to: emaiTo, // list of receivers,
+        cc : process.env.EMAIL,
+        subject: 'New Account Created in R-Commerce!', // Subject line
+        text: `Hi ${name} Welcome to R-Commerce!`, // plain text body
+        html: `<span>Hi ${name},</span></br><b><h2>Welcome to R-Commerce!</b></h2>` // html body
+    };
+
+    transporter.sendMail(mailInfo, function (err, info) {
+        if(err)
+          console.log('err in nodemailer>>>>>>>',err)
+        else
+          console.log('info in nodemailer>>>>>>>>>>>>',info);
+    });
 }
 
 export default resolvers;

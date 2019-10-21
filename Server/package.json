@@ -21,6 +21,7 @@
     "graphql": "^14.4.2",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.3.2",
+    "nodemailer": "^6.3.0",
     "path": "^0.12.7"
   },
   "devDependencies": {
