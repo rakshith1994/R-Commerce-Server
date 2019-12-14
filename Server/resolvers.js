@@ -152,33 +152,4 @@ const resolvers = {
 
 }
 
-// async..await is not allowed in global scope, must use a wrapper
-const createAccountMail = (name,emaiTo) => {
-    // create reusable transporter object using the default SMTP transport
-    let transporter = nodemailer.createTransport({
-        service : 'gmail',
-        auth: {
-            user: process.env.EMAIL, // generated ethereal user
-            pass: process.env.EMAIL_PASSWORD // generated ethereal password
-        }
-    });
-
-    // send mail with defined transport object
-    let mailInfo = {
-        from: process.env.EMAIL, // sender address
-        to: emaiTo, // list of receivers,
-        cc : process.env.EMAIL,
-        subject: 'New Account Created in R-Commerce!', // Subject line
-        text: `Hi ${name} Welcome to R-Commerce!`, // plain text body
-        html: `<span>Hi ${name},</span></br><b><h2>Welcome to R-Commerce!</b></h2>` // html body
-    };
-
-    transporter.sendMail(mailInfo, function (err, info) {
-        if(err)
-          console.log('err in nodemailer>>>>>>>',err)
-        else
-          console.log('info in nodemailer>>>>>>>>>>>>',info);
-    });
-}
-
 export default resolvers;

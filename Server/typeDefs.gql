@@ -12,6 +12,12 @@ type Token{
     token: String!
 }
 
+#/Query/
+type Query{
+    getCurrentUser: User
+    getUser: User!
+}
+
 #/Mutations/
 type Mutation{
     addUser(
@@ -38,8 +44,3 @@ type Mutation{
     ): User
 }
 
-#/Query/
-type Query{
-    getCurrentUser: User
-    getUser: User!
-}
