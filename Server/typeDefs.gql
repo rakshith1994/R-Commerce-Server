@@ -1,21 +1,77 @@
 # /Object Query/
 type User{
-        userName: String!,
-        password: String!,
-        confirmPassword: String!,
-        gender: String,
-        email:String!,
-        dob:String,
+    userName: String!,
+    password: String!,
+    confirmPassword: String!,
+    gender: String,
+    email:String!,
+    dob:String,
+    cart: [cartItems]
 }
 
 type Token{
     token: String!
 }
 
+type Collection{
+    id:String
+    product:[Product]
+}
+
+type cartItems {
+    items:[Product]
+}
+
+type Product{
+    name: String!,
+    price: Price!,
+    brand: String!,
+    imgUrl:String!,
+    shippingCost: String!,
+    dispatchTime: String!,
+    childSku:[Skuobj]!
+}
+
+type Skuobj{
+    size: String!,
+    color:[String]!
+}
+
+type Price{
+    inr: String,
+    usd: String
+}
+
+input ProductInput{
+    name: String!,
+    price: PriceInput!,
+    brand: String!,
+    imgUrl:String!,
+    shippingCost: String!,
+    dispatchTime: String!,
+    childSku:[SkuobjInput]!
+}
+
+input SkuobjInput{
+    size: String!,
+    color:[String]!
+}
+
+input PriceInput{
+    inr: String
+    usd: String
+}
+
+input CollectionInput{
+    id:String!
+    product: [ProductInput]!
+}
+
 #/Query/
 type Query{
-    getCurrentUser: User
-    getUser: User!
+    getCurrentUser: User,
+    getUser: User!,
+    getCollection: [Collection]!
 }
 
 #/Mutations/
@@ -42,5 +98,7 @@ type Mutation{
     checkValidUserName(
         userName: String!
     ): User
+
+    putCollection(input: [CollectionInput]):[Collection]!
 }
 

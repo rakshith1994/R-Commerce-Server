@@ -60,6 +60,18 @@ const resolvers = {
             let res = await db.collection('User').find({}).toArray();
             console.log('res for getUsers>>>',res);
             return res;
+        },
+        /**
+         * Get all collection
+         */
+        getCollection: async()=>{
+            let client = await MongoClient.connect(url, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+            let db = client.db(process.env.DB_NAME);
+            let res = await db.collection('collectionData').find({}).toArray();
+            return res;
         }
     },
     /**
@@ -147,6 +159,18 @@ const resolvers = {
                 throw new Error(`Opps! UserName ${res.userName} already exists. Please try again.`)
             }
             return res;
+        },
+        
+        putCollection: async(_,args)=>{
+            let client = await MongoClient.connect(url, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+
+            let db = client.db(process.env.DB_NAME);
+            let res = await db.collection('collectionData').insertMany(args.input);
+            console.log(res.ops[0]);
+            return res.ops;
         }
     }
 
