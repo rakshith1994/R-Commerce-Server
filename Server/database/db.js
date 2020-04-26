@@ -22,7 +22,7 @@ const initDb = callback => {
             return callback(null, _db);
         })
         .catch(err => {
-            return callback(err, '');
+            return callback(err, null);
         })
 }
 

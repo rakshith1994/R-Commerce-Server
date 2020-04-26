@@ -43,10 +43,9 @@ const server = new ApolloServer({
 
 initDb((err, db) => {
     if (err) {
-        console.log(err);
+        console.log(`error while connecting to mongoDB: ${err}`);
         return err;
     }
-    console.log(db);
     server.listen(4000).then(({url})=>{
         console.log(`Listening on url ${url}`);
     })
