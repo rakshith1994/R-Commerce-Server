@@ -3,6 +3,8 @@ import resolvers from './resolvers';
 import fs from 'fs';
 const jwt  = require('jsonwebtoken');
 import path from 'path';
+import {initDb,getDb} from './database/db'
+
 
 /**
  * Read the gql file.
@@ -39,6 +41,13 @@ const server = new ApolloServer({
 
 });
 
-server.listen(4000).then(({url})=>{
-    console.log(`Listening on url ${url}`);
+initDb((err, db) => {
+    if (err) {
+        console.log(err);
+        return err;
+    }
+    console.log(db);
+    server.listen(4000).then(({url})=>{
+        console.log(`Listening on url ${url}`);
+    })
 })

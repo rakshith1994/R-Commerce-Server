@@ -2,8 +2,6 @@ require('dotenv').config({
     path: 'Env_Variables.env'
 });
 const nodemailer = require('nodemailer');
-
-
 const createAccountMail = (name,emaiTo) => {
     // send mail with defined transport object
     let mailInfo = {

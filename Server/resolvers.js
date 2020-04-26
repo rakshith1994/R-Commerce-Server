@@ -4,16 +4,12 @@ const jwt  = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 import fs from 'fs';
 import RegisterMail from './email' 
+import {initDb,getDb} from './database/db'
 require('dotenv').config({
     path: 'Env_Variables.env'
 });
 
-/* Mongo connection */
-const MongoClient = mongodb.MongoClient;
-const url = process.env.MONGO_URI;
 var privateKey = fs.readFileSync('private.key','utf8');
-
-
 /**
  *
  *
@@ -39,25 +35,15 @@ const resolvers = {
         getCurrentUser : async (_,args,currentUser) => {
             console.log('currentUser>>>>>>>>>',await currentUser.currentUser);
             if(!currentUser) return null;
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            });
-            let db = client.db(process.env.DB_NAME);
             console.log('before db call>>>>>>>..',currentUser.currentUser.userName)
-            const user = await db.collection('User').findOne({userName : currentUser.currentUser.userName});
+            const user = await getDb.collection('User').findOne({userName : currentUser.currentUser.userName});
             console.log('user for current user>>>>>>>>',user);
             return user;
 
         },
 
         getUser: async (root,{}) => {
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            });
-            let db = client.db(process.env.DB_NAME);
-            let res = await db.collection('User').find({}).toArray();
+            let res = await getDb.collection('User').find({}).toArray();
             console.log('res for getUsers>>>',res);
             return res;
         },
@@ -65,12 +51,7 @@ const resolvers = {
          * Get all collection
          */
         getCollection: async()=>{
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            });
-            let db = client.db(process.env.DB_NAME);
-            let res = await db.collection('collectionData').find({}).toArray();
+            let res = await getDb.collection('collectionData').find({}).toArray();
             return res;
         }
     },
@@ -84,12 +65,7 @@ const resolvers = {
          */
         addUser: async (root, args) => {
             console.log('uri', url);
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            }); 
-            let db = client.db(process.env.DB_NAME);
-            const isUserExist = await db.collection('User').findOne({userName : args.userName});
+            const isUserExist = await getDb.collection('User').findOne({userName : args.userName});
             if(isUserExist){
                 throw new Error('User already Exist');
             }
@@ -102,7 +78,7 @@ const resolvers = {
                 return bcrypt.hash(args.password,salt,async (err,hash)=>{
                     if(err) throw new Error(err)
                     args.password = hash;
-                    let res = await db.collection('User').insertOne(args);
+                    let res = await getDb.collection('User').insertOne(args);
                     RegisterMail(args.userName,args.email)
                     return res.ops[0]
                 })
@@ -116,12 +92,7 @@ const resolvers = {
          * @param {*} {email,password} user email and password
          */
         signinUser : async(_,{email ,password})=>{
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            }); 
-            let db = client.db(process.env.DB_NAME);
-            const user = await db.collection('User').findOne({email});
+            const user = await getDb.collection('User').findOne({email});
             if(!user){
                 throw new Error('User not found!')
             }
@@ -148,12 +119,7 @@ const resolvers = {
          * check for the duplicate username
          */
         checkValidUserName : async (_,{userName}) => {
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            }); 
-            let db = client.db(process.env.DB_NAME);
-            let res = await db.collection('User').findOne({userName});
+            let res = await getDb.collection('User').findOne({userName});
             console.log('isValidUserName>>>>>>',res);
             if(res){
                 throw new Error(`Opps! UserName ${res.userName} already exists. Please try again.`)
@@ -162,13 +128,7 @@ const resolvers = {
         },
         
         putCollection: async(_,args)=>{
-            let client = await MongoClient.connect(url, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            });
-
-            let db = client.db(process.env.DB_NAME);
-            let res = await db.collection('collectionData').insertMany(args.input);
+            let res = await getDb.collection('collectionData').insertMany(args.input);
             console.log(res.ops[0]);
             return res.ops;
         }
